@@ -1,4 +1,3 @@
-"""Module for enums"""
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from enum import Enum
@@ -58,18 +57,13 @@ class Institution(MongoBaseModel):
 class AccountBase(MongoBaseModel):
     account_number: str | None = None
     account_type: AccountType = Field(...)
-    rate: float | None
+    rate: float | None = None
     name: str = Field(...)
-    institution: Institution | None
+    institution: Institution | None = None
+
+class AccountUpdate(MongoBaseModel):
+    rate: float | None = None
 
 class AccountDB(AccountBase):
     pass    
-
-account = {'name':'Capital One Checking', 'account_type':'Checking', 'rate':0.05}
-adb = AccountDB(**account)
-print(jsonable_encoder(adb))
-
-
-
-
     
