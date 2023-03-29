@@ -1,8 +1,7 @@
-from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
 from enum import Enum
 from bson import ObjectId
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, EmailStr, validator
+from email_validator import validate_email, EmailNotValidError
 from moneyed import Money, USD, EUR
 
 class PyObjectId(ObjectId):
@@ -46,10 +45,37 @@ class AccountStatus(str, Enum):
     CLOSED = 'closed'
     HIDDEN = 'hidden'
 
+class Role(str, Enum):
+    OPERATOR = 'Operator'
+    ADMIN = 'Admin'
+
 class MongoBaseModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     class Config:
         json_encoders = {ObjectId: str}
+
+class UserBase(MongoBaseModel):
+    username: str = Field(..., min_length=3, max_length=15)
+    email: str = Field(...)
+    password: str = Field(...)
+    role: Role
+
+    @validator('email')
+    def valid_email(cls, v):
+        try:
+            email = validate_email(v).email
+            return email
+        except EmailNotValidError as e:
+            raise EmailNotValidError
+        
+class LoginBase(BaseModel):
+    email: str = EmailStr(...)
+    password: str = Field(...)
+
+class CurrentUser(BaseModel):
+    email: str = EmailStr(...)
+    username: str = Field(...)
+    role: str = Field(...)
 
 class Institution(MongoBaseModel):
     name: str = Field(...)

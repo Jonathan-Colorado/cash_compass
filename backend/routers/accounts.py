@@ -1,10 +1,11 @@
 from typing import List
-from fastapi import APIRouter, Request, Body, status, HTTPException
+from fastapi import APIRouter, Request, Body, status, HTTPException, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from models import AccountBase, AccountDB, AccountUpdate
-
+from authentication import AuthHandler
 router = APIRouter()
+auth_handler = AuthHandler()
 
 @router.get("/", response_description="List all accounts")
 async def list_all_accounts(
